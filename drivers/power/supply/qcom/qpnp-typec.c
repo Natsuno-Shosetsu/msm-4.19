@@ -74,23 +74,23 @@ enum cc_line_state {
 };
 
 struct typec_wakeup_source {
-	struct wakeup_source	source;
+	struct wakeup_source	*source;
 	unsigned long		enabled;
 };
 
 static void typec_stay_awake(struct typec_wakeup_source *source)
 {
 	if (!__test_and_set_bit(0, &source->enabled)) {
-		__pm_stay_awake(&source->source);
-		pr_debug("enabled source %s\n", source->source.name);
+		__pm_stay_awake(source->source);
+		pr_debug("enabled source %s\n", source->source->name);
 	}
 }
 
 static void typec_relax(struct typec_wakeup_source *source)
 {
 	if (__test_and_clear_bit(0, &source->enabled)) {
-		__pm_relax(&source->source);
-		pr_debug("disabled source %s\n", source->source.name);
+		__pm_relax(source->source);
+		pr_debug("disabled source %s\n", source->source->name);
 	}
 }
 
@@ -1078,8 +1078,8 @@ static int qpnp_typec_probe(struct platform_device *pdev)
 
 	if (chip->role_reversal_supported) {
 		chip->force_mode = DUAL_ROLE_PROP_MODE_NONE;
-		wakeup_source_init(&chip->role_reversal_wakeup_source.source,
-					"typec_role_reversal_wake");
+		chip->role_reversal_wakeup_source.source = wakeup_source_register(&pdev->dev,
+                                        "typec_role_reversal_wake");
 		INIT_DELAYED_WORK(&chip->role_reversal_check,
 					qpnp_typec_role_check_work);
 		/* Register for android TypeC dual role framework */
@@ -1132,7 +1132,7 @@ unregister_psy:
 out:
 	mutex_destroy(&chip->typec_lock);
 	if (chip->role_reversal_supported)
-		wakeup_source_trash(&chip->role_reversal_wakeup_source.source);
+		wakeup_source_unregister(chip->role_reversal_wakeup_source.source);
 	return rc;
 }
 
@@ -1143,7 +1143,7 @@ static int qpnp_typec_remove(struct platform_device *pdev)
 
 	if (chip->role_reversal_supported) {
 		cancel_delayed_work_sync(&chip->role_reversal_check);
-		wakeup_source_trash(&chip->role_reversal_wakeup_source.source);
+		wakeup_source_unregister(chip->role_reversal_wakeup_source.source);
 	}
 	cancel_delayed_work_sync(&chip->typec_wdog_work);
 	rc = qpnp_typec_configure_ssmux(chip, OPEN);
