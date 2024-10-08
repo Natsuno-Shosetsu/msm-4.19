@@ -189,7 +189,6 @@ struct tas2560_priv {
 	struct device *dev;
 	struct i2c_client *client;
 	struct regmap *regmap;
-	struct snd_soc_component *component;
 
 	unsigned char mnLAddr;
 	unsigned char mnRAddr;
