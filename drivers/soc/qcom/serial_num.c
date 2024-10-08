@@ -7,6 +7,8 @@
 #include <linux/io.h>
 #include <linux/proc_fs.h>
 #include <asm/uaccess.h>
+#include <linux/seq_file.h>
+#include <linux/mod_devicetable.h>
 
 #define sn_readl(drvdata, off)	__raw_readl(drvdata->serial_base + off)
 #define fuse_readl(drvdata, off)	__raw_readl(drvdata->fuse_base + off)
