@@ -110,3 +110,6 @@ obj-$(CONFIG_QTI_CRYPTO_TZ) += crypto-qti-tz.o
 obj-$(CONFIG_QTI_HW_KEY_MANAGER) += hwkm_qti.o
 hwkm_qti-y += hwkm.o
 obj-$(CONFIG_MSM_BAM_DMUX) += bam_dmux.o
+# HMI_L6252_A01-39 add /proc/serial_num by wangyibo at 20190110 start
+obj-y += serial_num.o
+# HMI_L6252_A01-39 add /proc/serial_num by wangyibo at 20190110 end
